@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hdza's Radium Weekly</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #FF6B1A;
+    --orange-dark: #CC4D00;
+    --orange-light: #FF8C42;
+    --orange-glow: #FF6B1A22;
+    --orange-pale: #FFF0E6;
+    --bg: #0F0A06;
+    --bg2: #1A110A;
+    --bg3: #241709;
+    --card: #1E120C;
+    --border: #3D2010;
+    --border-bright: #FF6B1A55;
+    --text: #F5E8DC;
+    --text-muted: #A8866A;
+    --text-dim: #6B4D38;
+    --green: #4ADE80;
+    --blue: #60A5FA;
+    --purple: #A78BFA;
+    --yellow: #FCD34D;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background dots */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 20%, #FF6B1A0A 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, #FF6B1A08 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, #CC4D0005 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Grid pattern */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 40px 0 32px;
+    text-align: center;
+    position: relative;
+  }
+
+  .logo-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .logo-icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 0 24px #FF6B1A55;
+    flex-shrink: 0;
+  }
+
+  .site-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(28px, 6vw, 46px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #FF8C42, #FF6B1A, #FF4500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .badge-orange {
+    background: var(--orange-glow);
+    border: 1px solid var(--border-bright);
+    color: var(--orange-light);
+  }
+
+  .badge-green {
+    background: #4ADE8015;
+    border: 1px solid #4ADE8040;
+    color: var(--green);
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+    margin: 32px 0;
+  }
+
+  /* ── LOADING / ERROR ── */
+  .state-box {
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .state-box p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .error-icon { font-size: 40px; margin-bottom: 12px; }
+
+  .retry-btn {
+    margin-top: 16px;
+    padding: 8px 20px;
+    background: var(--orange);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .retry-btn:hover { background: var(--orange-light); }
+
+  /* ── CHALLENGE CARD ── */
+  .challenge-header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--orange);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .challenge-header::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, #FF6B1A12 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .ch-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .ch-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .ch-desc {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 680px;
+  }
+
+  /* ── STATS GRID ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    animation: fadeUp 0.4s ease both;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .stat-card:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-family: 'Baloo 2', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .stat-value.orange { color: var(--orange-light); }
+  .stat-value.green { color: var(--green); }
+  .stat-value.blue { color: var(--blue); }
+  .stat-value.purple { color: var(--purple); }
+  .stat-value.yellow { color: var(--yellow); }
+
+  /* ── DETAIL SECTIONS ── */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-bottom: 18px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--orange-light);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* key-value rows */
+  .kv-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .kv-row:last-child { border-bottom: none; }
+
+  .kv-key {
+    color: var(--text-muted);
+    font-weight: 500;
+    flex-shrink: 0;
+    min-width: 130px;
+  }
+
+  .kv-val {
+    color: var(--text);
+    text-align: right;
+    word-break: break-word;
+  }
+
+  /* progress bar */
+  .progress-wrap {
+    margin-top: 6px;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange-dark), var(--orange-light));
+    border-radius: 10px;
+    transition: width 1s ease;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* pill tags */
+  .pill-wrap { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+  .pill {
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  /* raw JSON fallback */
+  .raw-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+    animation: fadeUp 0.5s ease both;
+  }
+  .raw-section pre {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--orange-light);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 24px 0 0;
+    color: var(--text-dim);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
+  footer span { color: var(--orange); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* stagger children */
+  .challenge-header { animation-delay: 0.05s; }
+  .stats-grid .stat-card:nth-child(1) { animation-delay: 0.10s; }
+  .stats-grid .stat-card:nth-child(2) { animation-delay: 0.15s; }
+  .stats-grid .stat-card:nth-child(3) { animation-delay: 0.20s; }
+  .stats-grid .stat-card:nth-child(4) { animation-delay: 0.25s; }
+  .stats-grid .stat-card:nth-child(5) { animation-delay: 0.30s; }
+  .stats-grid .stat-card:nth-child(6) { animation-delay: 0.35s; }
+  .section:nth-of-type(1) { animation-delay: 0.40s; }
+  .section:nth-of-type(2) { animation-delay: 0.45s; }
+  .section:nth-of-type(3) { animation-delay: 0.50s; }
+  .section:nth-of-type(4) { animation-delay: 0.55s; }
+
+  /* refresh button */
+  .refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    background: transparent;
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    color: var(--orange-light);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 4px;
+  }
+  .refresh-btn:hover { background: var(--orange-glow); }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .top-bar-left {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .top-bar-left span { color: var(--text-muted); }
+
+  @media (max-width: 520px) {
+    .challenge-header { padding: 20px; }
+    .section { padding: 18px; }
+    .kv-key { min-width: 100px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo-bar">
+      <div class="logo-icon">🟠</div>
+      <h1 class="site-title">hdza's Radium Weekly</h1>
+    </div>
+    <div class="subtitle-bar">
+      <span class="badge badge-orange">⚡ Radium</span>
+      <span class="badge badge-green" id="live-badge">● Loading…</span>
+    </div>
+  </header>
+
+  <div class="divider"></div>
+
+  <div id="content">
+    <div class="state-box" id="loading-state">
+      <div class="spinner"></div>
+      <p>Fetching challenge data…</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>Made with ❤️ by <span>hdza</span> &nbsp;·&nbsp; Powered by Radium &nbsp;·&nbsp; Not affiliated with Rec Room Inc.</p>
+  </footer>
+
+</div>
+
+<script>
+const API = 'https://launcher.radie.app/challenge/active';
+
+function fmt(v) {
+  if (v === null || v === undefined) return '—';
+  if (typeof v === 'boolean') return v ? '✔ Yes' : '✗ No';
+  if (typeof v === 'number') return v.toLocaleString();
+  if (typeof v === 'string') {
+    // try ISO date
+    if (/^\d{4}-\d{2}-\d{2}T/.test(v)) {
+      const d = new Date(v);
+      return isNaN(d) ? v : d.toLocaleString('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric',
+        year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    }
+    return v;
+  }
+  if (Array.isArray(v)) return v.map(fmt).join(', ');
+  return String(v);
+}
+
+function camel(k) {
+  return k.replace(/_/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function timeLeft(endStr) {
+  if (!endStr) return null;
+  const end = new Date(endStr);
+  if (isNaN(end)) return null;
+  const diff = end - Date.now();
+  if (diff <= 0) return 'Ended';
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor((diff%86400000)/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  if (d > 0) return `${d}d ${h}h remaining`;
+  if (h > 0) return `${h}h ${m}m remaining`;
+  return `${m}m remaining`;
+}
+
+function progressPct(start, end) {
+  if (!start || !end) return null;
+  const s = new Date(start), e = new Date(end), n = Date.now();
+  if (isNaN(s)||isNaN(e)) return null;
+  const pct = Math.min(100, Math.max(0, ((n-s)/(e-s))*100));
+  return Math.round(pct);
+}
+
+/* Pick a colour class for stat values based on key name */
+function colorFor(key) {
+  key = key.toLowerCase();
+  if (/points|score|reward|token/.test(key)) return 'orange';
+  if (/complete|finish|winner|done/.test(key)) return 'green';
+  if (/player|user|participant|entry|submit/.test(key)) return 'blue';
+  if (/rank|level|tier/.test(key)) return 'purple';
+  if (/time|date|deadline|end|start/.test(key)) return 'yellow';
+  return '';
+}
+
+/* Build stat cards for "important" top-level number/string fields */
+const STAT_KEYS = ['points_reward','max_entries','total_submissions','participants',
+  'entries','reward','weekly_points','challenge_points','total_players','submissions'];
+
+function renderStats(data) {
+  const hits = [];
+  for (const k of STAT_KEYS) {
+    if (data[k] !== undefined && data[k] !== null) {
+      hits.push([k, data[k]]);
+    }
+  }
+  // Also grab any numeric fields not already captured
+  for (const [k,v] of Object.entries(data)) {
+    if (typeof v === 'number' && !STAT_KEYS.includes(k) && !k.startsWith('_')) {
+      hits.push([k, v]);
+    }
+  }
+  if (hits.length === 0) return '';
+  return `<div class="stats-grid">` + hits.slice(0,6).map(([k,v]) => `
+    <div class="stat-card">
+      <div class="stat-label">${camel(k)}</div>
+      <div class="stat-value ${colorFor(k)}">${typeof v==='number'?v.toLocaleString():v}</div>
+    </div>`).join('') + `</div>`;
+}
+
+/* Render a section of key-value pairs */
+function renderSection(title, entries) {
+  if (!entries.length) return '';
+  const rows = entries.map(([k,v]) => {
+    const display = fmt(v);
+    return `<div class="kv-row">
+      <span class="kv-key">${camel(k)}</span>
+      <span class="kv-val">${display}</span>
+    </div>`;
+  }).join('');
+  return `<div class="section"><div class="section-title">${title}</div>${rows}</div>`;
+}
+
+/* Render arrays as pill lists */
+function renderPillSection(title, arr) {
+  if (!arr || !arr.length) return '';
+  return `<div class="section">
+    <div class="section-title">${title}</div>
+    <div class="pill-wrap">${arr.map(x=>`<span class="pill">${fmt(x)}</span>`).join('')}</div>
+  </div>`;
+}
+
+function renderChallenge(data) {
+  const name = data.name || data.title || data.challenge_name || data.challenge_title || 'Active Challenge';
+  const desc = data.description || data.details || '';
+
+  // Status badge
+  const status = data.status || data.active ? '● Live' : '● Unknown';
+  document.getElementById('live-badge').textContent = status;
+  if ((data.status||'').toLowerCase()==='active'||data.active===true) {
+    document.getElementById('live-badge').style.color = 'var(--green)';
+  }
+
+  // Time progress
+  let progressHTML = '';
+  const pct = progressPct(data.start_date||data.starts_at||data.start, data.end_date||data.ends_at||data.end);
+  const tl = timeLeft(data.end_date||data.ends_at||data.end);
+  if (pct !== null) {
+    progressHTML = `<div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">${pct}% elapsed${tl ? ' · ' + tl : ''}</div>
+    </div>`;
+  } else if (tl) {
+    progressHTML = `<div class="progress-label" style="margin-top:8px;font-size:13px;color:var(--yellow)">${tl}</div>`;
+  }
+
+  // Partition keys
+  const skipInMain = new Set(['name','title','challenge_name','challenge_title',
+    'description','details','active','status','id','_id','uuid']);
+  const dateKeys = new Set(['start_date','starts_at','start','end_date','ends_at','end',
+    'created_at','updated_at','deadline','expires_at']);
+  const numKeys = new Set(STAT_KEYS);
+
+  const infoEntries = [], dateEntries = [], extraEntries = [], arrayEntries = [];
+  for (const [k, v] of Object.entries(data)) {
+    if (skipInMain.has(k)) continue;
+    if (typeof v === 'number' && numKeys.has(k)) continue;
+    if (Array.isArray(v)) { arrayEntries.push([k,v]); continue; }
+    if (typeof v === 'object' && v !== null) { extraEntries.push([k, JSON.stringify(v, null, 2)]); continue; }
+    if (dateKeys.has(k) || (typeof v==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(v))) {
+      dateEntries.push([k,v]); continue;
+    }
+    infoEntries.push([k,v]);
+  }
+
+  const html = `
+    <div class="top-bar">
+      <div class="top-bar-left">Last updated: <span>${new Date().toLocaleTimeString()}</span></div>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+
+    <div class="challenge-header">
+      <div class="ch-meta">
+        <span class="badge badge-orange">⚡ Weekly Challenge</span>
+        ${data.id||data._id||data.uuid ? `<span class="badge" style="background:var(--bg3);border-color:var(--border);color:var(--text-dim)">ID: ${data.id||data._id||data.uuid}</span>` : ''}
+      </div>
+      <div class="ch-title">${name}</div>
+      ${desc ? `<div class="ch-desc">${desc}</div>` : ''}
+      ${progressHTML}
+    </div>
+
+    ${renderStats(data)}
+    ${renderSection('Challenge Info', infoEntries)}
+    ${renderSection('Dates & Times', dateEntries)}
+    ${arrayEntries.map(([k,v]) => renderPillSection(camel(k), v)).join('')}
+    ${extraEntries.length ? renderSection('Additional Data', extraEntries) : ''}
+  `;
+
+  return html;
+}
+
+function renderRaw(data) {
+  return `
+    <div class="top-bar">
+      <div class="top-bar-left">Showing raw data</div>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+    <div class="raw-section">
+      <div class="section-title" style="margin-bottom:12px;font-size:13px">Raw Response</div>
+      <pre>${JSON.stringify(data, null, 2)}</pre>
+    </div>`;
+}
+
+async function loadData() {
+  const content = document.getElementById('content');
+  content.innerHTML = `<div class="state-box" id="loading-state">
+    <div class="spinner"></div><p>Fetching challenge data…</p></div>`;
+  document.getElementById('live-badge').textContent = '● Loading…';
+  document.getElementById('live-badge').style.color = '';
+
+  try {
+    const res = await fetch(API, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    let html = '';
+    if (Array.isArray(data)) {
+      if (data.length === 0) {
+        html = `<div class="state-box"><p style="color:var(--text-muted)">No active challenges found.</p></div>`;
+      } else if (data.length === 1) {
+        html = renderChallenge(data[0]);
+      } else {
+        html = data.map((item, i) => `
+          <div style="margin-bottom:8px;font-family:'Baloo 2',cursive;font-size:13px;
+            color:var(--orange-light);font-weight:700;opacity:0.7">
+            Challenge ${i + 1} of ${data.length}
+          </div>
+          ${renderChallenge(item)}
+          ${i < data.length-1 ? '<div class="divider"></div>' : ''}`
+        ).join('');
+      }
+    } else if (typeof data === 'object' && data !== null) {
+      html = renderChallenge(data);
+    } else {
+      html = `<div class="raw-section"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+    }
+
+    content.innerHTML = html;
+  } catch (err) {
+    console.error(err);
+    document.getElementById('live-badge').textContent = '● Error';
+    document.getElementById('live-badge').style.color = '#F87171';
+    content.innerHTML = `<div class="state-box">
+      <div class="error-icon">⚠️</div>
+      <p style="color:var(--text-muted);font-size:15px;font-weight:600;margin-bottom:6px">Couldn't load challenge data</p>
+      <p style="color:var(--text-dim);font-size:13px">${err.message}</p>
+      <button class="retry-btn" onclick="loadData()">Try Again</button>
+    </div>`;
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
